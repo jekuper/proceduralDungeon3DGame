@@ -1,7 +1,7 @@
 # Durka
 
 <a href="https://www.youtube.com/watch?v=vUI63ryzqTw">
-  <img align="right" src="https://img.youtube.com/vi/vUI63ryzqTw/0.jpg" alt="preview">
+  <img align="right" src="https://github.com/jekuper/proceduralDungeon3DGame/blob/master/readmeSup/video.jpg?raw=true" alt="youtube preview">
 </a>
 Durka is a Unity game featuring a procedural 3D dungeon generation system inspired by this <a href="https://www.youtube.com/watch?v=rBY2Dzej03A&t=484s&pp=ygUVM0QgZHVuZ2VvbiBnZW5lcmF0aW9u">3D Dungeon Generation video</a>. Please note that the project is still in its early stages.
 
