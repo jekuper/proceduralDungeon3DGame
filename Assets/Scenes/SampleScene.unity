@@ -214,7 +214,7 @@ Transform:
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
   m_LocalRotation: {x: 0.57357645, y: 0, z: 0, w: 0.81915206}
-  m_LocalPosition: {x: 54, y: 6.698463, z: 58.289906}
+  m_LocalPosition: {x: 54, y: 9.517541, z: 57.263844}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -276,7 +276,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 72ece51f2901e7445ab60da3685d6b5f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_ShowDebugText: 1
+  m_ShowDebugText: 0
   m_ShowCameraFrustum: 1
   m_IgnoreTimeScale: 0
   m_WorldUpOverride: {fileID: 0}
@@ -699,12 +699,12 @@ MonoBehaviour:
   m_ZDamping: 2
   m_TargetMovementOnly: 1
   m_ScreenX: 0.5
-  m_ScreenY: 0.4999999
-  m_CameraDistance: 5
+  m_ScreenY: 0.5
+  m_CameraDistance: 8
   m_DeadZoneWidth: 0
   m_DeadZoneHeight: 0
   m_DeadZoneDepth: 0
-  m_UnlimitedSoftZone: 0
+  m_UnlimitedSoftZone: 1
   m_SoftZoneWidth: 0.3
   m_SoftZoneHeight: 0.5
   m_BiasX: 0
@@ -812,7 +812,7 @@ Transform:
   m_GameObject: {fileID: 1240467412}
   serializedVersion: 2
   m_LocalRotation: {x: 0.57357645, y: 0, z: 0, w: 0.81915206}
-  m_LocalPosition: {x: 54, y: 6.698463, z: 58.289906}
+  m_LocalPosition: {x: 54, y: 9.517541, z: 57.263844}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1060,7 +1060,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6817b318a4e6dce4599fa88e998f6851, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  floorsCount: 10
+  floorsCount: 5
   levelHeight: 5
   size: {x: 70, y: 51, z: 70}
   roomCount: 100

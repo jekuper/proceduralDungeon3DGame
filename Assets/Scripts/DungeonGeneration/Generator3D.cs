@@ -65,7 +65,7 @@ public class Generator3D : MonoBehaviour {
                         Destroy (hallSides[i]);
                     continue;
                 }
-                if (hallSides[i] == null && i != 4) {
+                if (hallSides[i] == null /* && i != 4*/) {
                     hallSides[i] = Instantiate (wallPrefab, location + wallPos[i], wallRot[i]);
                     SetGameLayerRecursive (hallSides[i], LayerMask.NameToLayer ("floor" + (location.y / levelHeight)));
                 }

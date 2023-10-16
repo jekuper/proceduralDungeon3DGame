@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Shader Graphs_URP_PartialDissolveBetweenCameraAndPlayer
+  m_Name: wall
   m_Shader: {fileID: -6465566751694194690, guid: 6b34b7cc5b88c214a8581801ebb40a9a,
     type: 3}
   m_Parent: {fileID: 0}
@@ -50,7 +50,7 @@ Material:
     - _DissolveStrength: 0
     - _QueueControl: 0
     - _QueueOffset: 0
-    - _cameraPlayerDistance: 6
+    - _cameraPlayerDistance: 8
     - _cameraScale: 2.48
     - _dissolveFactor: 0.382
     - _innerRadius: 10
@@ -59,7 +59,7 @@ Material:
     - _outerRadius: 0.88
     - _scale: 1
     m_Colors:
-    - _Color: {r: 0.7924528, g: 0.7924528, b: 0.7924528, a: 1}
+    - _Color: {r: 0.0039215684, g: 0.39271548, b: 1, a: 1}
     - _TargetPosition: {r: 54, g: 1, b: 61, a: 0}
   m_BuildTextureStacks: []
 --- !u!114 &4700909091739608333
