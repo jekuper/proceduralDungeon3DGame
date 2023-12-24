@@ -737,7 +737,7 @@ MonoBehaviour:
   m_VerticalAxis:
     Value: 70
     m_SpeedMode: 0
-    m_MaxSpeed: 300
+    m_MaxSpeed: 800
     m_AccelTime: 0.1
     m_DecelTime: 0.1
     m_InputAxisName: Mouse Y
@@ -761,7 +761,7 @@ MonoBehaviour:
   m_HorizontalAxis:
     Value: 0
     m_SpeedMode: 0
-    m_MaxSpeed: 300
+    m_MaxSpeed: 800
     m_AccelTime: 0.1
     m_DecelTime: 0.1
     m_InputAxisName: Mouse X
@@ -1060,7 +1060,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6817b318a4e6dce4599fa88e998f6851, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  floorsCount: 5
+  floorsCount: 1
   levelHeight: 5
   size: {x: 70, y: 51, z: 70}
   roomCount: 100

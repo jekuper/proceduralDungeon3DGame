@@ -16,7 +16,7 @@ public class CameraMovement : MonoBehaviour
         cinemachineOffset.GetCinemachineComponent<CinemachineFramingTransposer>().m_TrackedObjectOffset = cursorOffset;
     }
     Vector3 GetCursorOffset () {
-        if (Input.GetMouseButton (1)) {
+        if (Input.GetMouseButton (1) || !Input.GetMouseButton(0)) {
             return Vector3.zero;
         }
         Vector2 cursorPos = Input.mousePosition;

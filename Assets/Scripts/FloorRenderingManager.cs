@@ -14,7 +14,7 @@ public class FloorRenderingManager : MonoBehaviour
         GameObject sceneCamObj = GameObject.Find ("SceneCamera");
         if (sceneCamObj != null) {
             // Should output the real dimensions of scene viewport
-            Debug.Log (Screen.width + " " + Screen.height);
+//            Debug.Log (Screen.width + " " + Screen.height);
         }
         int newLevel = Mathf.RoundToInt(player.position.y) / gen.levelHeight;
         if (lastLevel != newLevel) {
