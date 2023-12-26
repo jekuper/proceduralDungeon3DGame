@@ -1060,7 +1060,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6817b318a4e6dce4599fa88e998f6851, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  floorsCount: 1
+  floorsCount: 5
   levelHeight: 5
   size: {x: 70, y: 51, z: 70}
   roomCount: 100

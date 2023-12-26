@@ -6,6 +6,12 @@ using Graphs;
 using UnityEditor;
 using Cinemachine;
 
+public static class Vector3Extensions {
+    public static Vector3 Abs(this Vector3 vector) {
+        return new Vector3(Mathf.Abs(vector.x), Mathf.Abs(vector.y), Mathf.Abs(vector.z));
+    }
+}
+
 public class Generator3D : MonoBehaviour {
     enum CellType {
         None,
@@ -16,61 +22,67 @@ public class Generator3D : MonoBehaviour {
     class Cell {
         public CellType celltype = CellType.None;
         public int hallConfig = 63;
-        public GameObject[] hallSides = {
-            null,
-            null,
-            null,
-            null,
-            null,
-            null
-        };
+        public int instantiatedSides = 0;
 
         public Cell () { }
         public Cell (CellType type, int hallConf = 63) {
             celltype = type;
             hallConfig = hallConf;
         }
+        public bool WallRequired(int index) {
+            return (hallConfig & (1 << index)) > 0;
+        }
+        public bool WallExists(int index) {
+            return (instantiatedSides & (1 << index)) > 0;
+        }
+        public void MarkWall(int index) {
+            instantiatedSides |= (1 << index);
+        }
+
         public static Vector3Int[] neighbors = {
             new Vector3Int(-1, 0, 0),
-            new Vector3Int(0, 0, 1),
             new Vector3Int(1, 0, 0),
-            new Vector3Int(0, 0, -1),
 
-            new Vector3Int(0, 1, 0),
             new Vector3Int(0, -1, 0),
-        };
-        public static Vector3Int[] wallPos = {
             new Vector3Int(0, 1, 0),
+
+            new Vector3Int(0, 0, -1),
             new Vector3Int(0, 0, 1),
-            new Vector3Int(1, 0, 0),
-            new Vector3Int(0, 1, 0),
-
-            new Vector3Int(1, 1, 1),
-            new Vector3Int(0, 0, 0),
         };
-        public static Quaternion[] wallRot = {
-            Quaternion.Euler(0, 0, -90),
-            Quaternion.Euler(-90, 0, 0),
-            Quaternion.Euler(0, 0, 90),
-            Quaternion.Euler(90, 0, 0),
+        //public static Vector3Int[] wallPos = {
+        //    new Vector3Int(0, 1, 0),
+        //    new Vector3Int(1, 0, 0),
 
-            Quaternion.Euler(0, -90, -180),
-            Quaternion.Euler(0, 0, 0),
-        };
-        public void generateWalls (Vector3Int location, GameObject wallPrefab, int levelHeight) {
-            for (int i = 0; i < 6; i++) {
-                bool wallExists = ((hallConfig & (1 << i)) != 0);
-                if (!wallExists) {
-                    if (hallSides[i] != null)
-                        Destroy (hallSides[i]);
-                    continue;
-                }
-                if (hallSides[i] == null /* && i != 4*/) {
-                    hallSides[i] = Instantiate (wallPrefab, location + wallPos[i], wallRot[i]);
-                    SetGameLayerRecursive (hallSides[i], LayerMask.NameToLayer ("floor" + (location.y / levelHeight)));
-                }
-            }
-        }
+        //    new Vector3Int(0, 0, 1),
+        //    new Vector3Int(0, 1, 0),
+
+        //    new Vector3Int(1, 1, 1),
+        //    new Vector3Int(0, 0, 0),
+        //};
+        //public static Quaternion[] wallRot = {
+        //    Quaternion.Euler(0, 0, -90),
+        //    Quaternion.Euler(0, 0, 90),
+
+        //    Quaternion.Euler(-90, 0, 0),
+        //    Quaternion.Euler(90, 0, 0),
+
+        //    Quaternion.Euler(0, -90, -180),
+        //    Quaternion.Euler(0, 0, 0),
+        //};
+        //public void generateWalls (Vector3Int location, GameObject wallPrefab, int levelHeight) {
+        //    for (int i = 0; i < 6; i++) {
+        //        bool wallExists = ((hallConfig & (1 << i)) != 0);
+        //        if (!wallExists) {
+        //            if (hallSides[i] != null)
+        //                Destroy (hallSides[i]);
+        //            continue;
+        //        }
+        //        if (hallSides[i] == null /* && i != 4*/) {
+        //            hallSides[i] = Instantiate (wallPrefab, location + wallPos[i], wallRot[i]);
+        //            SetGameLayerRecursive (hallSides[i], LayerMask.NameToLayer ("floor" + (location.y / levelHeight)));
+        //        }
+        //    }
+        //}
     }
 
     class Room {
@@ -150,6 +162,8 @@ public class Generator3D : MonoBehaviour {
             GenerateFloor(i);
         }
 
+        Debug.Log(Time.fixedUnscaledTime);
+
         //Connects neighbor floors with vents
         for (int i = 0; i < floorsCount - 1; i++) {
             HashSet<Prim.Edge> ventEdges = ConnectFloors(i, i + 1);
@@ -157,8 +171,9 @@ public class Generator3D : MonoBehaviour {
 
             PathfindHallways(true, ref ventEdges);
         }
-
+        Debug.Log(Time.fixedUnscaledTime);
         InstantiateHallways();
+        Debug.Log(Time.fixedUnscaledTime);
 
         //Instantly moves camera back to player
         StartCoroutine(reactivateCamera());
@@ -447,21 +462,153 @@ public class Generator3D : MonoBehaviour {
     }
 
     void InstantiateHallways() {
-        Queue<Vector3Int> q = new Queue<Vector3Int>();
+        
+        for (int Q = 0; Q <= size.x; Q++) {
+            for (int W = 0; W <= size.y; W++) {
+                for (int E = 0; E <= size.z; E++) {
+                    Vector3Int start = new Vector3Int(Q, W, E);
 
-        foreach (var edge in edgesTotal) {
-            var startRoom = (edge.U as Vertex<Room>).Item;
-            var startPosf = startRoom.bounds.center;
 
-            var startPos = new Vector3Int((int)startPosf.x, startRoom.bounds.position.y, (int)startPosf.z);
+                    if (!grid.InBounds(start) ||
+                        (grid[start].celltype == CellType.None) ||
+                        grid[start].instantiatedSides == grid[start].hallConfig) {
+//                        Debug.Log("skipped " + start.ToString() + " " + grid[start].instantiatedSides.ToString() + " " + grid[start].hallConfig.ToString());
+                        continue;
+                    }
 
-            q.Enqueue(startPos);
+                    if (grid[start].celltype != CellType.Hallway && grid[start].celltype != CellType.Vent)
+                        continue;
+
+                    Debug.Log("gen walls for " + start.ToString() + " " + grid[start].instantiatedSides.ToString() + " " + grid[start].hallConfig.ToString());
+
+                    for (int i = 0; i < 6; i++) {
+                        if (!grid[start].WallRequired(i) ||
+                            grid[start].WallExists(i))
+                            continue;
+
+                        int l1 = 0, r1 = 0;
+                        l1 = FindWidth(start, i, -1);
+                        r1 = FindWidth(start, i, 1);
+
+                        int l2 = 0, r2 = 0;
+                        l2 = FindDepth(start, l1, r1, i, -1);
+                        r2 = FindDepth(start, l1, r1, i, 1);
+
+                        Vector3 lb, rt;
+                        lb = CalcWallOffset(start, new Vector2Int(l1, l2), i);
+                        rt = CalcWallOffset(start, new Vector2Int(r1, r2), i);
+
+                        MarkWalls(lb, rt, i);
+
+                        GameObject cube = Instantiate(cubePrefab);
+
+                        r1++;
+                        r2++;
+                        if (i % 2 == 1) {
+                            lb = CalcWallOffset(start + Cell.neighbors[i], new Vector2Int(l1, l2), i);
+                            rt = CalcWallOffset(start + Cell.neighbors[i], new Vector2Int(r1, r2), i);
+                        }
+                        else {
+                            lb = CalcWallOffset(start, new Vector2Int(l1, l2), i);
+                            rt = CalcWallOffset(start, new Vector2Int(r1, r2), i);
+                        }
+
+                        Vector3 position = (lb + rt) / 2f;
+                        Vector3 scale = new Vector3(
+                            Mathf.Abs(lb.x - rt.x),
+                            Mathf.Abs(lb.y - rt.y),
+                            Mathf.Abs(lb.z - rt.z)
+                        );
+                        scale += (((Vector3)Cell.neighbors[i]).Abs() * 0.2f);
+
+
+                        cube.transform.localScale = scale;
+                        cube.transform.position = position;
+                        SetGameLayerRecursive(cube, LayerMask.NameToLayer("floor" + ((int)position.y / levelHeight)));
+                    }
+                }
+            }
         }
+    }
 
-        while(q.Count > 0) {
-            Vector3Int start = q.Dequeue();
+    void MarkWalls(Vector3 minPoint, Vector3 maxPoint, int wallIndex) {
+        // Ensure minPoint contains the minimum values and maxPoint contains the maximum values
+        Vector3 startPoint = new Vector3(Mathf.Min(minPoint.x, maxPoint.x), Mathf.Min(minPoint.y, maxPoint.y), Mathf.Min(minPoint.z, maxPoint.z));
+        Vector3 endPoint = new Vector3(Mathf.Max(minPoint.x, maxPoint.x), Mathf.Max(minPoint.y, maxPoint.y), Mathf.Max(minPoint.z, maxPoint.z));
 
+        // Iterate over the cube
+        for (int x = Mathf.FloorToInt(startPoint.x); x <= Mathf.CeilToInt(endPoint.x); x++) {
+            for (int y = Mathf.FloorToInt(startPoint.y); y <= Mathf.CeilToInt(endPoint.y); y++) {
+                for (int z = Mathf.FloorToInt(startPoint.z); z <= Mathf.CeilToInt(endPoint.z); z++) {
+                    // Do something with the point (x, y, z)
+                    Vector3Int cubePoint = new Vector3Int(x, y, z);
+
+                    grid[cubePoint].MarkWall(wallIndex);
+                }
+            }
         }
+    }
+
+    private Vector3Int CalcWallOffset(Vector3Int start, Vector2Int offset, int wallIndex) {
+        Vector3Int pos = Vector3Int.zero;
+        if (Cell.neighbors[wallIndex].x == 0 &&
+            Cell.neighbors[wallIndex].y == 0) {
+            pos.x += offset.x;
+            pos.y += offset.y;
+        }
+        if (Cell.neighbors[wallIndex].y == 0 &&
+            Cell.neighbors[wallIndex].z == 0) {
+            pos.y += offset.x;
+            pos.z += offset.y;
+        }
+        if (Cell.neighbors[wallIndex].x == 0 && 
+            Cell.neighbors[wallIndex].z == 0) {
+            pos.x += offset.x;
+            pos.z += offset.y;
+        }
+        pos += start;
+
+        return pos;
+    }
+    private int FindDepth(Vector3Int start, int l, int r, int wallIndex, int increment) {
+        int ans = increment;
+        while (true) {
+            bool valid = true;
+            for (int offset = l; offset <= r; offset++) {
+                Vector3Int pos = CalcWallOffset (start, new Vector2Int(offset, ans), wallIndex);
+
+                if (!grid.InBounds(pos) ||
+                    (grid[pos].celltype != CellType.Hallway &&
+                    grid[pos].celltype != CellType.Vent) ||
+                    !grid[pos].WallRequired(wallIndex) ||
+                    grid[pos].WallExists(wallIndex)) {
+                    ans -= increment;
+                    valid = false;
+                    break;
+                }
+            }
+            if (!valid)
+                break;
+            ans += increment;
+        }
+        return ans;
+    }
+    private int FindWidth(Vector3Int start, int wallIndex, int increment) {
+        int ans = increment;
+        while (true) {
+            Vector3Int pos = CalcWallOffset(start, new Vector2Int(ans, 0), wallIndex);
+
+            if (!grid.InBounds(pos) ||
+                (grid[pos].celltype != CellType.Hallway &&
+                grid[pos].celltype != CellType.Vent) ||
+                !grid[pos].WallRequired(wallIndex) ||
+                grid[pos].WallExists(wallIndex)) {
+                ans -= increment;
+                break;
+            }
+            ans += increment;
+        }
+        return ans;
     }
 
     private HashSet<Prim.Edge> ConnectFloors(int a, int b) {
@@ -498,9 +645,6 @@ public class Generator3D : MonoBehaviour {
                 continue;
             }
             result = (result | (1 << i));
-            if (pos == new Vector3Int(0, 2, 3)) {
-                Debug.Log ("wall exists " + location + " - " + grid[location].celltype + " new bitmask = " + result);
-            }
         }
         return result;
     }
@@ -558,12 +702,12 @@ public class Generator3D : MonoBehaviour {
     }
 
     void PlaceHallway(Vector3Int location) {
-        grid[location].generateWalls (location, wallPrefab, levelHeight);
+        //grid[location].generateWalls (location, wallPrefab, levelHeight);
 //        PlaceCube(location, new Vector3Int(1, 1, 1), blueMaterial);
     }
 
     void PlaceVent(Vector3Int location) {
-        grid[location].generateWalls (location, wallPrefab, levelHeight);
+        //grid[location].generateWalls (location, wallPrefab, levelHeight);
 //        PlaceCube (location, new Vector3Int(1, 1, 1), greenMaterial);
     }
 
